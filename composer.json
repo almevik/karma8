@@ -1,0 +1,7 @@
+{
+    "require": {
+        "vlucas/phpdotenv": "^5.4",
+        "psr/log": "^1.1",
+        "ext-mysqli": "*"
+    }
+}

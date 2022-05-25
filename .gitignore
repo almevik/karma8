@@ -1,0 +1,11 @@
+.idea
+
+# Composer
+/vendor/
+
+# env files
+.env
+.env.local
+.env.*.local
+
+.log
