@@ -76,7 +76,7 @@ if ($needUsers > 0) {
 
         $newUserId = $usersCnt + $i;
         // Рандомное время окончания подписки или вообще отсутствие для 10% пользователей
-        $validTs = (int)(rand(0, 10) == 1) ? null : rand(time() - 5 * 24 * 3600, time() + 10 * 24 * 3600);
+        $validTs = (int)(rand(0, 10) == 1) ? 'null' : rand(time() - 5 * 24 * 3600, time() + 10 * 24 * 3600);
         $valid = (int)(rand(0, 10) == 1);
         $checked = $valid ?? (int)(rand(0, 10) == 1);
 
