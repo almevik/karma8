@@ -1,4 +1,7 @@
 <?php
+require_once('vendor/autoload.php');
+
+include_once 'config.php';
 
 /**
  * @return mysqli

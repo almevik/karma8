@@ -1,4 +1,5 @@
 <?php
+require_once('vendor/autoload.php');
 
 const EMERGENCY = 'emergecy';
 const ALERT = 'alert';
