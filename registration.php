@@ -7,62 +7,11 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 $dotenv->required(['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS']);
 
-const EMERGENCY = 'emergecy';
-const ALERT = 'alert';
-const CRITICAL = 'critical';
-const ERROR = 'error';
-const WARNING = 'warning';
-const NOTICE = 'notice';
-const INFO = 'info';
-const DEBUG = 'debug';
-
 const NEED_USERS = 1000000;
 const MAX_INSERT_CNT = 10000;
 
-function getLogLevelMap(): array
-{
-    return [
-        EMERGENCY => 1,
-        ALERT     => 2,
-        CRITICAL  => 3,
-        ERROR     => 4,
-        WARNING   => 5,
-        NOTICE    => 6,
-        INFO      => 7,
-        DEBUG     => 8,
-    ];
-}
-
-/**
- * @param $level
- * @param $message
- * @return void
- */
-function logger($level, $message)
-{
-    if (getLogLevelMap()[$level] <= getLogLevelMap()[$_SERVER['LOG_LEVEL'] ?? INFO]) {
-        if (empty($_SERVER['LOG_FILE'])) {
-            print_r(date("Y-m-d H:i:s") . ' [' . $level . '] ' . $message . "\n");
-        } else {
-            file_put_contents($_SERVER['LOG_FILE'], date("Y-m-d H:i:s") . ' [' . $level . '] ' . $message . "\n", FILE_APPEND);
-        }
-    }
-}
-
-/**
- * @return mysqli
- */
-function initDB(): mysqli
-{
-    // Подключаемся к базе
-    $mysqli = mysqli_connect($_SERVER['DB_HOST'], $_SERVER['DB_USER'], $_SERVER['DB_PASS'], $_SERVER['DB_NAME']);
-
-    if (!$mysqli) {
-        die('Ошибка соединения: (' . mysqli_connect_errno() . ')' . mysqli_connect_error());
-    }
-
-    return $mysqli;
-}
+include 'logger.php';
+include 'database.php';
 
 /**
  * @param mysqli $mysqli
@@ -79,6 +28,30 @@ function getUsersCnt(mysqli $mysqli): int
     }
 
     return (int)mysqli_fetch_assoc($result)['cnt'];
+}
+
+/**
+ * @param mysqli $mysqli
+ * @param string $sqlUsers
+ * @param null|string $sqlEmails
+ * @return void
+ */
+function addUsers(mysqli $mysqli, string $sqlUsers, ?string $sqlEmails)
+{
+    // Пользователя и почту добавляем в транзакции
+    mysqli_begin_transaction($mysqli);
+
+    try {
+        mysqli_query($mysqli, $sqlUsers);
+
+        if (!empty($sqlEmails)) {
+            mysqli_query($mysqli, $sqlEmails);
+        }
+        mysqli_commit($mysqli);
+    } catch (Exception $e) {
+        logger('error', $e->getMessage());
+        mysqli_rollback($mysqli);
+    }
 }
 
 $mysqli = initDB();
@@ -135,16 +108,5 @@ foreach ($emailsForInsert as $emails) {
 
 foreach ($sqlsUsers as $key => $sqlUsers) {
     $sqlEmails = $sqlsEmails[$key] ?? null;
-
-    // Пользователя и почту добавляем в транзакции
-    mysqli_begin_transaction($mysqli);
-
-    try {
-        mysqli_query($mysqli, $sqlUsers);
-        mysqli_query($mysqli, $sqlEmails);
-        mysqli_commit($mysqli);
-    } catch (Exception $e) {
-        logger('error', $e->getMessage());
-        mysqli_rollback($mysqli);
-    }
+    addUsers($mysqli, $sqlUsers, $sqlEmails);
 }
