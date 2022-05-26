@@ -23,10 +23,10 @@ function getEmail(mysqli $mysqli): ?string
     mysqli_begin_transaction($mysqli);
 
     try {
-        $selectEmail = "SELECT email FROM emails WHERE checked = 0 AND valid = 0 LIMIT 1";
+        $sqlEmail = "SELECT email FROM emails WHERE checked = 0 AND valid = 0 LIMIT 1";
 
-        if (!$result = mysqli_query($mysqli, $selectEmail)) {
-            throw new Exception("Failed to make query ($selectEmail) " . mysqli_error($mysqli));
+        if (!$result = mysqli_query($mysqli, $sqlEmail)) {
+            throw new Exception("Failed to make query ($sqlEmail) " . mysqli_error($mysqli));
         }
 
         if ($data = mysqli_fetch_assoc($result)) {

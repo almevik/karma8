@@ -19,11 +19,11 @@ include 'database.php';
  */
 function getUsersCnt(mysqli $mysqli): int
 {
-    $select = "SELECT COUNT(id) AS cnt FROM users";
+    $sql = "SELECT COUNT(id) AS cnt FROM users";
 
-    if (!$result = mysqli_query($mysqli, $select)) {
+    if (!$result = mysqli_query($mysqli, $sql)) {
         // Тут можно в сентри отправить или че-то еще сделать, пока просто завершение с ошибкой
-        logger('error', "Failed to make query ($select) " . mysqli_error($mysqli));
+        logger('error', "Failed to make query ($sql) " . mysqli_error($mysqli));
         exit(1);
     }
 
