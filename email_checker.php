@@ -35,6 +35,7 @@ function getEmail(mysqli $mysqli): ?string
         }
 
         mysqli_commit($mysqli);
+        logger('info', "Почта $email отправлена на проверку");
     } catch (Exception $e) {
         logger('error', $e->getMessage());
         mysqli_rollback($mysqli);
